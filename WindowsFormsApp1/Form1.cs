@@ -30,7 +30,7 @@ namespace WindowsFormsApp1
         private HtmlNode containerNode;
         private HtmlNode buttonWrapperNode;
         private HtmlNode tableNode;
-        private HtmlNode headerRowNode;
+        private HtmlNode headerWrapperNode;
         private string userInput;
         private string bparser;
 
@@ -59,13 +59,11 @@ namespace WindowsFormsApp1
             {
                 if (e.Link == "button")
                 {
-                    var thNode = buttonWrapperNode.SelectSingleNode("//th[@class='loadMoreButton']");
+                    var thNode = buttonWrapperNode.SelectSingleNode("//div[@class=\"loadMoreButton\"]");
                     if (thNode != null)
-                        buttonWrapperNode.RemoveChild(tableNode.SelectSingleNode("//th[@class='loadMoreButton']"));
+                        buttonWrapperNode.RemoveChild(tableNode.SelectSingleNode("//div[@class=\"loadMoreButton\"]"));
 
                     var res = WriteToForm(userInput, bparser, firstSearchRes.Item1, firstSearchRes.Item2);
-
-
 
                 }
                 //string val = "";
@@ -99,28 +97,9 @@ namespace WindowsFormsApp1
                 //    </table>"); // Заголовок таблицы
 
                 // Создание нового HtmlDocument
-                htmlDoc = new HtmlAgilityPack.HtmlDocument();
-            
 
-            // Создание тега <html>
-            var htmlNode = HtmlNode.CreateNode("<html></html>");
-            htmlDoc.DocumentNode.AppendChild(htmlNode);
-
-            // Создание тега <head> и добавление CSS-ссылки
-            var headNode = HtmlNode.CreateNode("<head></head>");
-            var styleNode = HtmlNode.CreateNode("<link rel='stylesheet' type='text/css' href='C:\\Users\\LIKORIS001\\Desktop\\Winforms TechExpert\\WindowsFormsApp1\\WindowsFormsApp1\\src\\styles.css'/>");
-            headNode.AppendChild(styleNode);
-            htmlNode.AppendChild(headNode);
-
-            // Создание тега <body>
-            var bodyNode = HtmlNode.CreateNode("<body></body>");
-            htmlNode.AppendChild(bodyNode);
-            containerNode = HtmlNode.CreateNode("<div class='container'></div>");
-            bodyNode.AppendChild(containerNode);
-            
-            // Создание таблицы
-            tableNode = HtmlNode.CreateNode("<table></table>");
-            containerNode.AppendChild(tableNode);
+            //htmlPanel.Text = htmlDoc.DocumentNode.OuterHtml;
+            //titleWrapperNode.AppendChild(HtmlNode.CreateNode("<p>Найденные документы</p>"));
 
             // Создание заголовка таблицы
             //var headerRowNode = HtmlNode.CreateNode("<tr><th class=\"title\">Найденные документы</th></tr>");
@@ -137,6 +116,31 @@ namespace WindowsFormsApp1
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            htmlDoc = new HtmlAgilityPack.HtmlDocument();
+
+
+            // Создание тега <html>
+            var htmlNode = HtmlNode.CreateNode("<html></html>");
+            htmlDoc.DocumentNode.AppendChild(htmlNode);
+
+            // Создание тега <head> и добавление CSS-ссылки
+            var headNode = HtmlNode.CreateNode("<head></head>");
+            var styleNode = HtmlNode.CreateNode("<link rel=\"stylesheet\" type=\"text/css\" href=\"C:\\Users\\LIKORIS001\\Desktop\\Winforms TechExpert\\WindowsFormsApp1\\WindowsFormsApp1\\src\\styles.css\"/>");
+            headNode.AppendChild(styleNode);
+            htmlNode.AppendChild(headNode);
+
+            // Создание тега <body>
+            var bodyNode = HtmlNode.CreateNode("<body></body>");
+            htmlNode.AppendChild(bodyNode);
+            containerNode = HtmlNode.CreateNode("<div class=\"container\"></div>");
+            bodyNode.AppendChild(containerNode);
+
+            // Создание таблицы
+            tableNode = HtmlNode.CreateNode("<div class=\"table\"></div>");
+            containerNode.AppendChild(tableNode);
+
+            //var titleWrapperNode = HtmlNode.CreateNode("<div class=\"titleWrapper\"><p>Найденные документы</p></div>");
+            //tableNode.AppendChild(titleWrapperNode);
             //HtmlDocument
         }
 
@@ -164,8 +168,16 @@ namespace WindowsFormsApp1
                     // Очищаем содержимое тега, удаляя все дочерние элементы
                     tableNode.RemoveAllChildren();
                 }
-                headerRowNode = HtmlNode.CreateNode("<tr><th class=\"title\">Найденные документы</th></tr>");
-                tableNode.AppendChild(headerRowNode);
+
+                var titleWrapperNode = HtmlNode.CreateNode("<div class=\"titleWrapper\"><p>Найденные документы</p></div>");
+                tableNode.AppendChild(titleWrapperNode);
+
+
+                headerWrapperNode = HtmlNode.CreateNode("<div class=\"countFindRowsWrapper\"></div>");
+                tableNode.AppendChild(headerWrapperNode);
+
+                //headerRowNode = HtmlNode.CreateNode("<tr><th class=\"title\">Найденные документы</th></tr>");
+                //tableNode.AppendChild(headerRowNode);
 
                 //var countFindRowsNode = HtmlNode.CreateNode("<tr><th class=\"countFindRows\"></th></tr>");
                 //tableNode.AppendChild(countFindRowsNode);
@@ -176,7 +188,7 @@ namespace WindowsFormsApp1
 
                 firstSearchRes = WriteToForm(userInput, bparser);
 
-                buttonWrapperNode = HtmlNode.CreateNode($"<div class='buttonWrapper'><a class='loadMoreButton' href='button'>Загрузить ещё</a></div>");
+                buttonWrapperNode = HtmlNode.CreateNode($"<div class=\"buttonWrapper\"><a class=\"loadMoreButton\" href=\"button\">Загрузить ещё</a></div>");
                 containerNode.AppendChild(buttonWrapperNode);
 
                 //if (await WriteToForm(userInput) == true)
@@ -223,8 +235,9 @@ namespace WindowsFormsApp1
                 mainParts = mainInfo.parts;
                 firstFuzzySearchId = mainInfo.id;
                 //returnableRowsCount = responses[0].ArrayOfDocListItem.Length;
-                var countFindRowsNode = HtmlNode.CreateNode($"<tr><th class=\"countFindRows\">В списке элементов: {responses[0].ArrayOfDocListItem.Length}</th></tr>");
-                tableNode.AppendChild(countFindRowsNode);
+                //var countFindRowsNode = HtmlNode.CreateNode($"<p>В списке элементов: {responses[0].ArrayOfDocListItem.Length}</p>");
+                //headerWrapperNode.AppendChild(countFindRowsNode);
+                headerWrapperNode.InnerHtml = $"<p>В списке элементов: {responses[0].ArrayOfDocListItem.Length}</p>";
             }
 
             // если пользователь нажал Загрузить ещё
@@ -298,7 +311,7 @@ namespace WindowsFormsApp1
                         parentNode.RemoveChild(brNode);
 
                         // Создаем ссылку
-                        var linkNode = HtmlNode.CreateNode($"<a href='kodeks://link/d?nd={docInfo.nd}'>{textBeforeBr}</a>");
+                        var linkNode = HtmlNode.CreateNode($"<a href=\"kodeks://link/d?nd={docInfo.nd}\">{textBeforeBr}</a>");
 
                         // Заменяем текст на ссылку до тега <br>, прежде чем изменять другие узлы
                         parentNode.InnerHtml = parentNode.InnerHtml.Replace(textBeforeBr, linkNode.OuterHtml);
@@ -308,19 +321,19 @@ namespace WindowsFormsApp1
                     }
 
                     // Получаем обновленный HTML
-                    var tbRow = HtmlNode.CreateNode($"<tr><td class=\"tbRow\">{htmlRow.DocumentNode.OuterHtml}</td></tr>");
+                    var tbRow = HtmlNode.CreateNode($"<div class=\"tbRow\">{htmlRow.DocumentNode.OuterHtml}</div>");
                     tableNode.AppendChild(tbRow);
                 }
                 
             }
             if (firstCall == false)
             {
-                var thNode = tableNode.SelectSingleNode("//th[@class='countFindRows']");
+                var thNode = tableNode.SelectSingleNode("//div[@class=\"countFindRowsWrapper\"]");
 
                 if (thNode != null)
                 {
                     // Изменяем внутренний текст элемента <th>
-                    thNode.InnerHtml = $"В списке элементов: {returnableRowsCount}";
+                    thNode.InnerHtml = $"<p>В списке элементов: {returnableRowsCount}</p>";
                 }
 
                 //    tableNode.RemoveChild(tableNode.ChildNodes.First(x => x.ChildAttributes("class").First().Value == "countFindRows"));
