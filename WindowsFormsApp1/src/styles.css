@@ -1,11 +1,26 @@
-﻿body {
-    margin-top: 50px;
+﻿/*body {
+    margin-top: 50px;*/
+/*    align-items: center;
+    align-content: center;*/
+/*}*/
+
+.container {
+    padding-top: 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    /*display: block;*/
+    height: 100%;
 }
 
 table {
     /*padding-top: 50px;*/
     width: 100%;
     border-collapse: collapse;
+    align-items: center;
+    /*align-items: center;*/
     /*background-color: red;*/
 }
 
@@ -38,4 +53,23 @@ span {
     /*    overflow-wrap: break-word;
     white-space: normal;*/
     display: block;
+}
+
+a.loadMoreButton {
+    /*margin: 15px;*/
+    
+   /* padding: 1px 6px;*/
+    border: 1px outset;
+    border-radius: 3px;
+    color: buttontext;
+    background-color: buttonface;
+    text-decoration: none;
+}
+
+.buttonWrapper {
+    display: flex;
+    height: 100px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
 }
