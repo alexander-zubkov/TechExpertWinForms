@@ -1,0 +1,41 @@
+﻿body {
+    margin-top: 50px;
+}
+
+table {
+    /*padding-top: 50px;*/
+    width: 100%;
+    border-collapse: collapse;
+    /*background-color: red;*/
+}
+
+tr {
+    height: 100px;
+}
+
+td {
+    border: 1px solid #a9a6a6;
+    text-align: left;
+}
+
+.title {
+    /*padding: 10px;*/
+    padding: 10px 0px 0px 10px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.countFindRows {
+    padding: 0px 0px 10px 10px;
+    font-size: 20px;
+    text-align: left;
+}
+.tbRow {
+    padding: 8px;
+}
+
+span {
+    /*    overflow-wrap: break-word;
+    white-space: normal;*/
+    display: block;
+}
