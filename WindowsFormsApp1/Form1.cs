@@ -25,7 +25,6 @@ namespace WindowsFormsApp1
     public partial class Form1 : Form
     {
         private HtmlPanel htmlPanel;
-        //private StringBuilder tableContent;
         private HtmlAgilityPack.HtmlDocument htmlDoc;
         private HtmlNode containerNode;
         private HtmlNode buttonWrapperNode;
@@ -47,13 +46,8 @@ namespace WindowsFormsApp1
             {
                 Dock = DockStyle.Fill
             };
-            //htmlPanel.Controls.Add
-            Controls.Add(htmlPanel);
 
-            //htmlPanel.LinkClicked += (sender, e) =>
-            //{
-            //    throw new NotImplementedException();
-            //};
+            Controls.Add(htmlPanel);
 
             htmlPanel.LinkClicked += (sender, e) =>
             {
@@ -66,52 +60,7 @@ namespace WindowsFormsApp1
                     var res = WriteToForm(userInput, bparser, firstSearchRes.Item1, firstSearchRes.Item2);
 
                 }
-                //string val = "";
-                //if (e.Attributes.TryGetValue(""))
-                //{
-
-                //}
             };
-
-            //htmlPanel.
-                // Инициализация StringBuilder для хранения содержимого таблицы
-                //tableContent = new StringBuilder();
-                //tableContent = new StringBuilder();
-                //tableContent.Append(@"
-                //    <style>
-                //        table {
-                //            padding-top: 50px;
-                //            width: 100%;
-                //            border-collapse: collapse;
-                //        }
-                //        tr {
-                //            height: 100px;
-                //        }
-                //        td {
-                //            border: 1px solid black;
-                //            text-align: center;
-                //        }
-                //    </style>
-                //    <table>
-                //        <tr><th>Найденные документы</th></tr>
-                //    </table>"); // Заголовок таблицы
-
-                // Создание нового HtmlDocument
-
-            //htmlPanel.Text = htmlDoc.DocumentNode.OuterHtml;
-            //titleWrapperNode.AppendChild(HtmlNode.CreateNode("<p>Найденные документы</p>"));
-
-            // Создание заголовка таблицы
-            //var headerRowNode = HtmlNode.CreateNode("<tr><th class=\"title\">Найденные документы</th></tr>");
-            //tableNode.AppendChild(headerRowNode);
-
-            //XmlDocument doc = new XmlDocument();
-            //doc.LoadXml(htmlDoc.DocumentNode.OuterHtml);
-            //foreach(XmlNode v in doc)
-            //{
-            //    var b = v.Attributes;
-            //    Console.WriteLine();
-            //}
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -138,10 +87,6 @@ namespace WindowsFormsApp1
             // Создание таблицы
             tableNode = HtmlNode.CreateNode("<div class=\"table\"></div>");
             containerNode.AppendChild(tableNode);
-
-            //var titleWrapperNode = HtmlNode.CreateNode("<div class=\"titleWrapper\"><p>Найденные документы</p></div>");
-            //tableNode.AppendChild(titleWrapperNode);
-            //HtmlDocument
         }
 
 
@@ -155,13 +100,6 @@ namespace WindowsFormsApp1
             // Добавляем текст в таблицу, если он не пустой
             if (!string.IsNullOrWhiteSpace(userInput))
             {
-                //tableContent.Remove(tableContent.Length - 8, 8);
-
-                //htmlDoc.DocumentNode.OuterHtml = userInput;
-                //tableNode.AppendChild(tableNode.CreateNode(WriteToForm(userInput)));
-
-
-                //var Node = htmlDoc.DocumentNode.SelectSingleNode("//div");
 
                 if (tableNode != null)
                 {
@@ -176,14 +114,6 @@ namespace WindowsFormsApp1
                 headerWrapperNode = HtmlNode.CreateNode("<div class=\"countFindRowsWrapper\"></div>");
                 tableNode.AppendChild(headerWrapperNode);
 
-                //headerRowNode = HtmlNode.CreateNode("<tr><th class=\"title\">Найденные документы</th></tr>");
-                //tableNode.AppendChild(headerRowNode);
-
-                //var countFindRowsNode = HtmlNode.CreateNode("<tr><th class=\"countFindRows\"></th></tr>");
-                //tableNode.AppendChild(countFindRowsNode);
-
-                //string fuzzySearchId = "";
-
                 bparser = await Getbparser(userInput);
 
                 firstSearchRes = WriteToForm(userInput, bparser);
@@ -191,12 +121,8 @@ namespace WindowsFormsApp1
                 buttonWrapperNode = HtmlNode.CreateNode($"<div class=\"buttonWrapper\"><a class=\"loadMoreButton\" href=\"button\">Загрузить ещё</a></div>");
                 containerNode.AppendChild(buttonWrapperNode);
 
-                //if (await WriteToForm(userInput) == true)
-                //{
-                //    //searchTextBox.Clear();
-                //    // Обновляем текст формы
+                // Обновляем текст формы
                 htmlPanel.Text = htmlDoc.DocumentNode.OuterHtml;
-                //};
             }
             else
             {
@@ -208,11 +134,19 @@ namespace WindowsFormsApp1
         {
             string url2 = "http://192.168.0.14:81/kodeks/bparser?parse=" + Uri.EscapeDataString(userInput);
 
-            using (HttpClient httpclient = new HttpClient())
+            try
             {
-                HttpResponseMessage response = await httpclient.GetAsync(url2);
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsStringAsync();
+                using (HttpClient httpclient = new HttpClient())
+                {
+                    HttpResponseMessage response = await httpclient.GetAsync(url2);
+                    response.EnsureSuccessStatusCode();
+                    return await response.Content.ReadAsStringAsync();
+                }
+            }
+            catch(HttpRequestException e)
+            {
+                MessageBox.Show(e.Message);
+                throw new HttpRequestException("Произошла ошибка при запросе к серверу, проверьте соединение с сервером");
             }
         }
 
@@ -234,9 +168,6 @@ namespace WindowsFormsApp1
 
                 mainParts = mainInfo.parts;
                 firstFuzzySearchId = mainInfo.id;
-                //returnableRowsCount = responses[0].ArrayOfDocListItem.Length;
-                //var countFindRowsNode = HtmlNode.CreateNode($"<p>В списке элементов: {responses[0].ArrayOfDocListItem.Length}</p>");
-                //headerWrapperNode.AppendChild(countFindRowsNode);
                 headerWrapperNode.InnerHtml = $"<p>В списке элементов: {responses[0].ArrayOfDocListItem.Length}</p>";
             }
 
@@ -258,7 +189,7 @@ namespace WindowsFormsApp1
                 // Добавляем дополнительные части (комментарии, образцы и тд)
                 for (int dopPartNumber = 0; dopPartNumber < dopInfo.parts; dopPartNumber++)
                     responses.Add(client2.GetSearchListN(new GetSearchListNRequest(dopInfo.id, null, dopPartNumber, null, null, false)));
-                
+
             }
 
 
@@ -269,8 +200,6 @@ namespace WindowsFormsApp1
                 for (int i = 0; i < resp.ArrayOfDocListItem.Length; i++)
                 {
                     DocListItem docInfo = resp.ArrayOfDocListItem[i];
-
-                    //returnableRowsCount += i;
 
                     var htmlRow = new HtmlAgilityPack.HtmlDocument();
                     //var newHtmlRow = new HtmlAgilityPack.HtmlDocument();
@@ -315,38 +244,25 @@ namespace WindowsFormsApp1
 
                         // Заменяем текст на ссылку до тега <br>, прежде чем изменять другие узлы
                         parentNode.InnerHtml = parentNode.InnerHtml.Replace(textBeforeBr, linkNode.OuterHtml);
-
-
-                        //newHtmlRow.DocumentNode.AppendChild(linkNode);
                     }
-
                     // Получаем обновленный HTML
                     var tbRow = HtmlNode.CreateNode($"<div class=\"tbRow\">{htmlRow.DocumentNode.OuterHtml}</div>");
                     tableNode.AppendChild(tbRow);
                 }
-                
+
             }
             if (firstCall == false)
             {
                 var thNode = tableNode.SelectSingleNode("//div[@class=\"countFindRowsWrapper\"]");
 
-                if (thNode != null)
-                {
-                    // Изменяем внутренний текст элемента <th>
-                    thNode.InnerHtml = $"<p>В списке элементов: {returnableRowsCount}</p>";
-                }
-
-                //    tableNode.RemoveChild(tableNode.ChildNodes.First(x => x.ChildAttributes("class").First().Value == "countFindRows"));
-                //var newCountFindRowsNode = HtmlNode.CreateNode($"<tr><th class=\"countFindRows\">В списке элементов: {returnableRowsCount}</th></tr>");
-                //tableNode.InsertAfter(newCountFindRowsNode, headerRowNode);
+                // Изменяем внутренний текст элемента <th>
+                thNode.InnerHtml = $"<p>В списке элементов: {returnableRowsCount}</p>";
             }
-            //tableNode.InsertAfter(HtmlNode.CreateNode($"<tr><th class=\"countFindRows\">В списке элементов: {responses[0].ArrayOfDocListItem.Length}</th></tr>"));
-            //var countFindRowsNode = HtmlNode.CreateNode($"<tr><th class=\"countFindRows\">В списке элементов: {responses[0].ArrayOfDocListItem.Length}</th></tr>");
-            //var newCountFindRowsNode = tableNode.ChildNodes.First(x => x.ChildAttributes("class").First().Value == "countFindRows");
             htmlPanel.Text = htmlDoc.DocumentNode.OuterHtml;
             return new Tuple<int, string>(mainParts, firstFuzzySearchId);
         }
     }
+}
     //public async Task<IEnumerable<string>> TestAsync(string userInput)
     //{
     //    string url2 = "http://192.168.0.14:81/kodeks/bparser?parse=" + Uri.EscapeDataString(userInput);
@@ -596,11 +512,5 @@ namespace WindowsFormsApp1
     //    return true;
     //}
 
-
-
-
-
-
-}
 
 
