@@ -87,6 +87,9 @@ namespace WindowsFormsApp1
             // Создание таблицы
             tableNode = HtmlNode.CreateNode("<div class=\"table\"></div>");
             containerNode.AppendChild(tableNode);
+
+            buttonWrapperNode = HtmlNode.CreateNode($"<div class=\"buttonWrapper\"><a class=\"loadMoreButton\" href=\"button\">Загрузить ещё</a></div>");
+            containerNode.AppendChild(buttonWrapperNode);
         }
 
 
@@ -117,9 +120,6 @@ namespace WindowsFormsApp1
                 bparser = await Getbparser(userInput);
 
                 firstSearchRes = WriteToForm(userInput, bparser);
-
-                buttonWrapperNode = HtmlNode.CreateNode($"<div class=\"buttonWrapper\"><a class=\"loadMoreButton\" href=\"button\">Загрузить ещё</a></div>");
-                containerNode.AppendChild(buttonWrapperNode);
 
                 // Обновляем текст формы
                 htmlPanel.Text = htmlDoc.DocumentNode.OuterHtml;
@@ -174,7 +174,6 @@ namespace WindowsFormsApp1
             // если пользователь нажал Загрузить ещё
             else
             {
-                //returnableRowsCount = 0;
 
                 if (mainParts > 1)
                 {
@@ -200,9 +199,7 @@ namespace WindowsFormsApp1
                 for (int i = 0; i < resp.ArrayOfDocListItem.Length; i++)
                 {
                     DocListItem docInfo = resp.ArrayOfDocListItem[i];
-
                     var htmlRow = new HtmlAgilityPack.HtmlDocument();
-                    //var newHtmlRow = new HtmlAgilityPack.HtmlDocument();
                     htmlRow.LoadHtml(docInfo.info);
 
                     // Находим все теги <a>
