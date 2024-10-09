@@ -52,13 +52,10 @@ namespace WindowsFormsApp1
                 {
                     e.Handled = true;
                 }
-                else if (e.Link == "kodeks")
+                else if (e.Link.StartsWith("kodeks:"))
                 {
                     e.Handled = true;
-
-                    var nd = e.Attributes.ContainsKey("nd") ? e.Attributes["nd"] : null;
-                    var mark = e.Attributes.ContainsKey("mark") ? e.Attributes["mark"] : null;
-                    await _client.RunKodeks(nd, mark);
+                    await _client.RunKodeks(e.Link);
                 }
             }
             catch (Exception ex)
@@ -147,20 +144,20 @@ namespace WindowsFormsApp1
         private async Task<(DocListItem[], int?)> LoadDataAsync(int part = 0)
         {
             var docListInfo = await GetDocListInfoAsync(txtSearch.Text);
-            var items = await _client.GetSearchListNAsync(docListInfo.Id, null, part, null, null, false);
+            var items = await _client.GetSearchListNAsync(docListInfo.Id, null, part, null, null, true);
             var nextPart = docListInfo.Parts > part + 1 ? (int?)(part + 1) : null;
             return (items.ArrayOfDocListItem, nextPart);
         }
 
         private string FormatedTitle(string text, int nd)
         {
-            return Regex.Replace(text, @"^(.*?\(часть.*?\)|^[^(]*)(.*)", $"<a href=\"kodeks\" nd=\"{nd}\"><b>${{1}}</b></a>${{2}}");
+            return Regex.Replace(text, @"^(.*?\(часть.*?\)|^[^(]*)(.*)", $"<a href=\"kodeks://link/d?nd={nd}\"><b>${{1}}</b></a>${{2}}");
         }
 
         private string FormatedText(string text)
         {
             string formatedText = Regex.Replace(text, @"^(.*)(<br>(.*)|$)", "<i style=\"color: gray\">${1}</i><br/>${2}");
-            formatedText = Regex.Replace(formatedText, @"<a\shref=""([^""]*)""\snd=""(\d+)""\smark=""(\w+)"">", @"<a href=""kodeks"" nd=""${2}"" mark=""${3}"">");
+            formatedText = Regex.Replace(formatedText, @"<a\shref=""([^""]*)""\snd=""(\d+)""\smark=""(\w+)"">", @"<a href=""kodeks://link/d?nd=${2}&mark=${3}"">");
             return formatedText;
         }
 

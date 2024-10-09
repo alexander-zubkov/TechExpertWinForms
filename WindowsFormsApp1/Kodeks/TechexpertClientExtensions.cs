@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -28,40 +29,62 @@ namespace Kodeks
             {
                 var data = await response.Content.ReadAsStringAsync();
                 string pattern = @"Клиент, который следует использовать с этим сервером - (?<path>.[^\s]*)\s";
-                return Regex.IsMatch(data, pattern)
-                    ? Regex.Match(data, pattern).Groups["path"].Value
-                    : null;
+                if (Regex.IsMatch(data, pattern))
+                {
+                    return Regex.Match(data, pattern).Groups["path"].Value;
+                }
+                else
+                {
+                    throw new Exception($"Невозможно определить путь к специальному клиентскому приложению \"Техэксперт-клиент\"\r\n{data}");
+                }
             }
         }
 
-        public static async Task RunKodeks(this TechexpertClient client, string nd = null, string mark = null)
+        public static async Task RunKodeks(this TechexpertClient client, string link)
         {
-            //var startInfo = new ProcessStartInfo();
-            //startInfo.FileName = await client.KClientRemotePath();
-            //startInfo.WorkingDirectory = Path.GetDirectoryName(startInfo.FileName);
-            //startInfo.Arguments = "client.docs.ini";
-            //startInfo.UseShellExecute = false;
-            //Process.Start(startInfo);
-            //d?nd={nd}&mark={mark}
-
-            var kClient = await client.KClientRemotePath();
-            var workingDirectory = Path.Combine(Path.GetDirectoryName(kClient), "kassist");
-            var fileName = Path.Combine(workingDirectory, "link.exe");
-
-            var arguments = $"kodeks://link/d?nd={nd}";
-            if (!string.IsNullOrEmpty(mark))
+            if (IsUriSupported(link))
             {
-                arguments += $"&mark={mark}";
+                Process.Start(link);
             }
-
-            var startInfo = new ProcessStartInfo
+            else
             {
-                FileName = fileName,
-                WorkingDirectory = workingDirectory,
-                UseShellExecute = false,
-                Arguments = arguments
-            };
-            Process.Start(startInfo);
+                await client.StartKClientProcess(link);
+            }
+        }
+
+        private static bool IsUriSupported(string link)
+        {
+            if (Uri.TryCreate(link, UriKind.Absolute, out Uri uri))
+            {
+                var registryValue = Registry.GetValue(@$"HKEY_CLASSES_ROOT\{uri.Scheme}", "", null);
+                return registryValue != null;
+            }
+            return false;
+        }
+
+        private static async Task StartKClientProcess(this TechexpertClient client, string link)
+        {
+            var fileName = await client.KClientRemotePath();
+            var workingDirectory = Path.GetDirectoryName(fileName);
+
+            var uri = client.Endpoint.Address.Uri;
+            var argument = link.Replace("kodeks://link/", $"{uri.Scheme}://{uri.Host}:{uri.Port}/");
+
+            if (File.Exists(fileName))
+            {
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    Arguments = argument,
+                    WorkingDirectory = workingDirectory,
+                    UseShellExecute = false,
+                };
+                Process.Start(startInfo);
+            }
+            else
+            {
+                throw new Exception("Необходимо установить специальное клиентское приложение \"Техэксперт-клиент\"");
+            }
         }
     }
 }
